@@ -113,7 +113,7 @@ public class VDFInterpolationHandler implements VDFTrafficHandler, LinkEnterEven
 				outputStream.writeDouble(scope.getStartTime());
 				outputStream.writeDouble(scope.getEndTime());
 				outputStream.writeDouble(scope.getIntervalTime());
-				outputStream.writeDouble(scope.getIntervals());
+				outputStream.writeInt(scope.getIntervals());
 
 				for (var entry : interpolatedCounts.entrySet()) {
 					outputStream.writeUTF(entry.getKey().toString());

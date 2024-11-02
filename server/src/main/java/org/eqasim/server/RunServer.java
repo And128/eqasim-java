@@ -6,7 +6,18 @@ import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.eqasim.core.components.config.EqasimConfigGroup;
 import org.eqasim.core.components.raptor.EqasimRaptorConfigGroup;
+import org.eqasim.core.components.traffic.CrossingPenalty;
+import org.eqasim.core.components.traffic.DefaultCrossingPenalty;
+import org.eqasim.core.simulation.vdf.VDFConfigGroup;
+import org.eqasim.core.simulation.vdf.VDFScope;
+import org.eqasim.core.simulation.vdf.handlers.VDFHorizonHandler;
+import org.eqasim.core.simulation.vdf.handlers.VDFInterpolationHandler;
+import org.eqasim.core.simulation.vdf.handlers.VDFTrafficHandler;
+import org.eqasim.core.simulation.vdf.travel_time.VDFTravelTime;
+import org.eqasim.core.simulation.vdf.travel_time.function.BPRFunction;
+import org.eqasim.core.simulation.vdf.travel_time.function.VolumeDelayFunction;
 import org.eqasim.server.api.RoadIsochroneEndpoint;
 import org.eqasim.server.api.RoadRouterEndpoint;
 import org.eqasim.server.api.TransitIsochroneEndpoint;
@@ -27,12 +38,15 @@ import org.matsim.core.network.NetworkUtils;
 import org.matsim.core.network.algorithms.NetworkCleaner;
 import org.matsim.core.network.algorithms.TransportModeNetworkFilter;
 import org.matsim.core.network.io.MatsimNetworkReader;
+import org.matsim.core.router.util.TravelTime;
 import org.matsim.core.scenario.ScenarioUtils;
+import org.matsim.core.trafficmonitoring.FreeSpeedTravelTime;
 import org.matsim.pt.transitSchedule.api.TransitScheduleReader;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Verify;
 
 import io.javalin.Javalin;
 
@@ -41,7 +55,7 @@ public class RunServer {
 			throws ConfigurationException, JsonParseException, JsonMappingException, IOException {
 		CommandLine cmd = new CommandLine.Builder(args) //
 				.requireOptions("config-path", "port") //
-				.allowOptions("threads", "configuration-path", "use-transit") //
+				.allowOptions("threads", "configuration-path", "use-transit", "vdf-path") //
 				.build();
 
 		int threads = cmd.getOption("threads").map(Integer::parseInt)
@@ -64,7 +78,7 @@ public class RunServer {
 			});
 		});
 
-		Config config = ConfigUtils.loadConfig(cmd.getOptionStrict("config-path"), new EqasimRaptorConfigGroup());
+		Config config = ConfigUtils.loadConfig(cmd.getOptionStrict("config-path"), new EqasimRaptorConfigGroup(), new VDFConfigGroup(), new EqasimConfigGroup());
 		Scenario scenario = ScenarioUtils.createScenario(config);
 
 		new MatsimNetworkReader(scenario.getNetwork())
@@ -82,8 +96,31 @@ public class RunServer {
 		new TransportModeNetworkFilter(scenario.getNetwork()).filter(roadNetwork, Collections.singleton("car"));
 		new NetworkCleaner().run(roadNetwork);
 
-		RoadRouterService roadRouterService = RoadRouterService.create(config, roadNetwork, configuration.walk,
-				threads);
+		TravelTime roadTravelTime = new FreeSpeedTravelTime();
+		if (cmd.hasOption("vdf-path")) {
+			Verify.verify(config.getModules().containsKey(VDFConfigGroup.GROUP_NAME));
+			Verify.verify(config.getModules().containsKey(EqasimConfigGroup.GROUP_NAME));
+
+			VDFConfigGroup vdfConfig = VDFConfigGroup.getOrCreate(config);
+			EqasimConfigGroup eqasimConfig = EqasimConfigGroup.get(config);
+
+			VDFScope scope = new VDFScope(vdfConfig.getStartTime(), vdfConfig.getEndTime(), vdfConfig.getInterval());
+
+			VDFTrafficHandler handler = new VDFInterpolationHandler(roadNetwork, scope, 1.0);
+			handler.getReader().readFile(new File(cmd.getOptionStrict("vdf-path")).toURI().toURL());
+
+			VolumeDelayFunction vdf = new BPRFunction(vdfConfig.getBprFactor(), vdfConfig.getBprExponent());
+			CrossingPenalty crossingPenalty = DefaultCrossingPenalty.build(roadNetwork,
+					eqasimConfig.getCrossingPenalty());
+
+			VDFTravelTime travelTime = new VDFTravelTime(scope, vdfConfig.getMinimumSpeed(),
+					vdfConfig.getCapacityFactor(), eqasimConfig.getSampleSize(), roadNetwork, vdf, crossingPenalty);
+			travelTime.update(handler.aggregate(), true);
+			roadTravelTime = travelTime;
+		}
+
+		RoadRouterService roadRouterService = RoadRouterService.create(config, roadNetwork, configuration.walk, threads,
+				roadTravelTime);
 		RoadRouterEndpoint roadRouterEndpoint = new RoadRouterEndpoint(executor, roadRouterService);
 		app.post("/router/road", roadRouterEndpoint::post);
 

@@ -26,7 +26,6 @@ import org.matsim.core.router.util.LeastCostPathCalculator.Path;
 import org.matsim.core.router.util.LeastCostPathCalculatorFactory;
 import org.matsim.core.router.util.TravelDisutility;
 import org.matsim.core.router.util.TravelTime;
-import org.matsim.core.trafficmonitoring.FreeSpeedTravelTime;
 import org.matsim.core.utils.collections.QuadTree;
 import org.matsim.core.utils.collections.QuadTrees;
 import org.matsim.core.utils.geometry.CoordUtils;
@@ -46,10 +45,11 @@ public class RoadRouterService {
 	private final SpeedyALTFactory routerFactory = new SpeedyALTFactory();
 	private final ConcurrentLinkedQueue<RouterInstance> routerPool = new ConcurrentLinkedQueue<>();
 
-	private final FreeSpeedTravelTime defaultTravelTime = new FreeSpeedTravelTime();
+	private final TravelTime defaultTravelTime;
 	private final ModifiedFreeSpeedTravelTime modifiedTravelTime;
 
-	RoadRouterService(Network network, QuadTree<? extends Link> linkIndex, WalkParameters walkParameters, int threads) {
+	RoadRouterService(Network network, QuadTree<? extends Link> linkIndex, WalkParameters walkParameters, int threads,
+			TravelTime defaultTravelTime) {
 		this.walkParameters = walkParameters;
 		this.linkIndex = linkIndex;
 
@@ -57,6 +57,7 @@ public class RoadRouterService {
 			routerPool.add(createRouterInstance(network));
 		}
 
+		this.defaultTravelTime = defaultTravelTime;
 		this.modifiedTravelTime = ModifiedFreeSpeedTravelTime.create(network);
 	}
 
@@ -145,7 +146,8 @@ public class RoadRouterService {
 				response.inVehicleTime_min = path.travelTime / 60.0;
 				response.inVehicleDistance_km = RouteUtils.calcDistance(path) * 1e-3;
 				response.arrivalTime_s = departureTime + path.travelTime;
-				response.totalTravelTime_min = response.accessTime_min + response.egressTime_min + response.inVehicleTime_min;
+				response.totalTravelTime_min = response.accessTime_min + response.egressTime_min
+						+ response.inVehicleTime_min;
 
 				if (request.provideLinks) {
 					response.links = new LinkedList<>();
@@ -195,12 +197,12 @@ public class RoadRouterService {
 		return bestResponse;
 	}
 
-	static public RoadRouterService create(Config config, Network network, WalkConfiguration configuration,
-			int threads) {
+	static public RoadRouterService create(Config config, Network network, WalkConfiguration configuration, int threads,
+			TravelTime defaultTravelTime) {
 		WalkParameters walkParameters = createWalkParameters(config, configuration);
 		QuadTree<? extends Link> linkIndex = QuadTrees.createQuadTree(network.getLinks().values());
 
-		return new RoadRouterService(network, linkIndex, walkParameters, threads);
+		return new RoadRouterService(network, linkIndex, walkParameters, threads, defaultTravelTime);
 	}
 
 	static public record WalkParameters(double beelineWalkFactor, double beelineWalkSpeed_m_s) {
