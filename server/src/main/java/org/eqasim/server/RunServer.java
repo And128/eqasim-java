@@ -13,7 +13,6 @@ import org.eqasim.core.components.traffic.DefaultCrossingPenalty;
 import org.eqasim.core.simulation.vdf.VDFConfigGroup;
 import org.eqasim.core.simulation.vdf.VDFScope;
 import org.eqasim.core.simulation.vdf.handlers.VDFHorizonHandler;
-import org.eqasim.core.simulation.vdf.handlers.VDFInterpolationHandler;
 import org.eqasim.core.simulation.vdf.handlers.VDFTrafficHandler;
 import org.eqasim.core.simulation.vdf.travel_time.VDFTravelTime;
 import org.eqasim.core.simulation.vdf.travel_time.function.BPRFunction;
@@ -78,7 +77,8 @@ public class RunServer {
 			});
 		});
 
-		Config config = ConfigUtils.loadConfig(cmd.getOptionStrict("config-path"), new EqasimRaptorConfigGroup(), new VDFConfigGroup(), new EqasimConfigGroup());
+		Config config = ConfigUtils.loadConfig(cmd.getOptionStrict("config-path"), new EqasimRaptorConfigGroup(),
+				new VDFConfigGroup(), new EqasimConfigGroup());
 		Scenario scenario = ScenarioUtils.createScenario(config);
 
 		new MatsimNetworkReader(scenario.getNetwork())
@@ -106,7 +106,7 @@ public class RunServer {
 
 			VDFScope scope = new VDFScope(vdfConfig.getStartTime(), vdfConfig.getEndTime(), vdfConfig.getInterval());
 
-			VDFTrafficHandler handler = new VDFInterpolationHandler(roadNetwork, scope, 1.0);
+			VDFTrafficHandler handler = new VDFHorizonHandler(roadNetwork, scope, vdfConfig.getHorizon(), threads);
 			handler.getReader().readFile(new File(cmd.getOptionStrict("vdf-path")).toURI().toURL());
 
 			VolumeDelayFunction vdf = new BPRFunction(vdfConfig.getBprFactor(), vdfConfig.getBprExponent());
@@ -115,7 +115,7 @@ public class RunServer {
 
 			VDFTravelTime travelTime = new VDFTravelTime(scope, vdfConfig.getMinimumSpeed(),
 					vdfConfig.getCapacityFactor(), eqasimConfig.getSampleSize(), roadNetwork, vdf, crossingPenalty);
-			travelTime.update(handler.aggregate(), true);
+			travelTime.update(handler.aggregate(true), true);
 			roadTravelTime = travelTime;
 		}
 
