@@ -54,7 +54,7 @@ public class RunServer {
 			throws ConfigurationException, JsonParseException, JsonMappingException, IOException {
 		CommandLine cmd = new CommandLine.Builder(args) //
 				.requireOptions("config-path", "port") //
-				.allowOptions("threads", "configuration-path", "use-transit", "vdf-path") //
+				.allowOptions("threads", "configuration-path", "use-transit", "vdf-path", "vdf-factor") //
 				.build();
 
 		int threads = cmd.getOption("threads").map(Integer::parseInt)
@@ -113,8 +113,10 @@ public class RunServer {
 			CrossingPenalty crossingPenalty = DefaultCrossingPenalty.build(roadNetwork,
 					eqasimConfig.getCrossingPenalty());
 
-			VDFTravelTime travelTime = new VDFTravelTime(scope, vdfConfig.getMinimumSpeed(),
-					vdfConfig.getCapacityFactor(), eqasimConfig.getSampleSize(), roadNetwork, vdf, crossingPenalty);
+			double capacityFactor = cmd.getOption("vdf-factor").map(Double::parseDouble)
+					.orElse(vdfConfig.getCapacityFactor());
+			VDFTravelTime travelTime = new VDFTravelTime(scope, vdfConfig.getMinimumSpeed(), capacityFactor,
+					eqasimConfig.getSampleSize(), roadNetwork, vdf, crossingPenalty);
 			travelTime.update(handler.aggregate(true), true);
 			roadTravelTime = travelTime;
 		}
