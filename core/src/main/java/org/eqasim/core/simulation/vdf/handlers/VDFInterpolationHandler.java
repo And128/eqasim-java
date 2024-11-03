@@ -53,14 +53,19 @@ public class VDFInterpolationHandler implements VDFTrafficHandler, LinkEnterEven
 	}
 
 	@Override
-	public IdMap<Link, List<Double>> aggregate() {
-		interpolatedCounts.forEach((id, interpolated) -> {
-			List<Double> current = currentCounts.get(id);
+	public IdMap<Link, List<Double>> aggregate(boolean ignoreIteration) {
+		for (var item : interpolatedCounts.entrySet()) {
+			List<Double> current = currentCounts.get(item.getKey());
+			List<Double> interpolated = item.getValue();
 
 			for (int i = 0; i < interpolated.size(); i++) {
-				interpolated.set(i, (1.0 - updateFactor) * interpolated.get(i) + updateFactor * current.get(i));
+				if (!ignoreIteration) {
+					interpolated.set(i, (1.0 - updateFactor) * interpolated.get(i) + updateFactor * current.get(i));
+				}
+
+				current.set(i, 0.0);
 			}
-		});
+		}
 
 		return interpolatedCounts;
 	}
