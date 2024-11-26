@@ -55,6 +55,8 @@ import org.matsim.core.utils.misc.CRCChecksum;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import org.matsim.utils.eventsfilecomparison.ComparisonResult;
+import org.matsim.utils.eventsfilecomparison.EventsFileComparator;
 
 public class TestSimulationPipeline {
 
@@ -377,6 +379,7 @@ public class TestSimulationPipeline {
     }
 
     public void runVdf() throws CommandLine.ConfigurationException, IOException, InterruptedException {
+        // This one will use the SparseHorizon handler
         AdaptConfigForVDF.main(new String[] {
                 "--input-config-path", "melun_test/input/config.xml",
                 "--output-config-path", "melun_test/input/config_vdf.xml",
@@ -386,6 +389,20 @@ public class TestSimulationPipeline {
         });
 
         runMelunSimulation("melun_test/input/config_vdf.xml", "melun_test/output_vdf");
+
+
+        // We force this one to use the legacy horizon handler
+        AdaptConfigForVDF.main(new String[] {
+                "--input-config-path", "melun_test/input/config.xml",
+                "--output-config-path", "melun_test/input/config_vdf_horizon.xml",
+                "--engine", "true",
+                "--config:eqasim:vdf_engine.generateNetworkEvents", "true",
+                "--config:eqasim:vdf.handler", "Horizon"
+        });
+
+        runMelunSimulation("melun_test/input/config_vdf_horizon.xml", "melun_test/output_vdf_horizon");
+
+        assert CRCChecksum.getCRCFromFile("melun_test/output_vdf_horizon/output_plans.xml.gz") == CRCChecksum.getCRCFromFile("melun_test/output_vdf/output_plans.xml.gz");
 
         RunStandaloneModeChoice.main(new String[]{
                 "--config-path", "melun_test/input/config_vdf.xml",
@@ -425,7 +442,6 @@ public class TestSimulationPipeline {
 
     @Test
     public void testBaseDeterminism() throws Exception {
-        Logger logger = LogManager.getLogger(TestSimulationPipeline.class);
         Config config = ConfigUtils.loadConfig("melun_test/input/config.xml");
         runMelunSimulation(config, "melun_test/output_determinism_1", null, 2);
 
