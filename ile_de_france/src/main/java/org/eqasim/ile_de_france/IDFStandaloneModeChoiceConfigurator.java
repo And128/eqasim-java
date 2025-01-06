@@ -14,6 +14,7 @@ public class IDFStandaloneModeChoiceConfigurator extends StandaloneModeChoiceCon
 	
     public IDFStandaloneModeChoiceConfigurator(Config config, CommandLine commandLine) {
         super(config, commandLine);
+        policies.adaptConfiguration(config);
     }
     
     protected List<AbstractModule> getSpecificModeChoiceModules() {
