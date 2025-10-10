@@ -1,0 +1,50 @@
+pattern	0+	5+	10+	15+	20+	25+	30+	35+	40+	45+	50+	55+	60+
+education---education	29	0	0	0	0	0	0	0	0	0	0	0	0
+education---home	538	438	131	75	67	44	47	29	24	18	13	9	25
+education---leisure	32	51	18	2	3	2	5	2	6	1	0	3	2
+education---other	11	7	5	4	0	3	3	0	1	0	1	0	0
+education---pt interaction	51	76	48	16	0	0	0	0	0	0	0	0	0
+education---shop	0	8	3	0	0	0	0	0	0	0	3	1	0
+home---education	610	528	135	69	53	39	30	25	14	18	13	7	19
+home---home	70	0	0	0	0	0	0	0	0	0	0	0	0
+home---leisure	400	322	133	51	34	37	14	19	18	15	16	16	36
+home---other	445	281	131	55	45	25	19	15	17	3	5	10	32
+home---pt interaction	164	229	163	86	0	0	0	0	0	0	0	0	0
+home---shop	580	380	161	80	44	30	23	15	33	13	7	8	44
+home---work	184	258	131	57	58	57	29	22	54	39	25	32	69
+leisure---education	10	19	5	0	6	1	1	2	4	1	1	3	6
+leisure---home	396	351	147	51	39	43	22	18	26	11	19	14	44
+leisure---leisure	21	23	14	8	4	9	6	4	2	3	4	2	9
+leisure---other	36	35	14	13	1	1	1	0	1	1	0	2	3
+leisure---pt interaction	32	49	33	18	0	0	0	0	0	0	0	0	0
+leisure---shop	21	16	4	3	2	2	2	0	3	0	1	1	7
+leisure---work	16	25	10	3	5	3	2	2	0	1	0	3	1
+other---education	0	8	5	2	1	3	6	0	0	0	2	0	3
+other---home	466	256	122	50	34	32	13	12	11	2	5	8	32
+other---leisure	26	22	11	8	3	3	0	3	1	1	2	3	4
+other---other	57	24	16	7	4	3	1	3	1	1	1	2	2
+other---pt interaction	35	38	30	16	1	0	0	0	0	0	0	0	0
+other---shop	49	26	12	5	3	3	5	2	1	0	0	1	9
+other---work	8	11	5	1	6	2	1	0	5	0	2	1	9
+pt interaction---education	101	47	11	6	0	0	0	0	0	0	0	0	0
+pt interaction---home	347	168	77	31	0	0	0	0	0	0	0	0	0
+pt interaction---leisure	84	39	21	10	0	0	0	0	0	0	0	0	0
+pt interaction---other	52	26	25	14	1	0	0	0	0	0	0	0	0
+pt interaction---pt interaction	451	423	409	254	165	107	58	25	20	15	11	4	5
+pt interaction---shop	50	41	27	10	1	0	0	0	0	0	0	0	0
+pt interaction---work	168	56	18	10	0	0	0	0	0	0	0	0	0
+shop---education	0	6	2	0	0	1	0	0	0	0	0	1	0
+shop---home	620	438	167	80	49	24	21	15	41	11	11	11	45
+shop---leisure	8	19	13	5	2	2	4	0	0	1	1	1	2
+shop---other	12	4	5	1	3	4	3	0	0	2	0	1	2
+shop---pt interaction	37	47	38	27	0	0	0	0	0	0	0	0	0
+shop---shop	21	28	11	5	6	4	4	3	2	0	4	2	7
+shop---work	5	2	3	0	0	1	0	0	0	0	1	0	0
+work---home	155	277	112	64	59	52	29	24	55	36	25	26	51
+work---leisure	17	25	13	4	3	2	3	1	2	2	2	5	3
+work---other	9	21	9	2	1	2	2	3	4	2	2	1	6
+work---pt interaction	65	73	63	39	0	0	0	0	0	0	0	0	0
+work---shop	18	11	5	0	6	3	1	0	1	2	1	3	8
+work---work	168	0	0	0	0	0	0	0	0	0	0	0	0
+
+average leg duration: 763.0110541069445 seconds = 00:12:43

@@ -12,12 +12,9 @@ import org.matsim.contribs.discrete_mode_choice.model.DiscreteModeChoiceTrip;
 import com.google.inject.Inject;
 
 public class BavariaDrtUtilityEstimator extends DrtUtilityEstimator {
-	private final BavariaModeParameters parameters;
-
 	@Inject
 	public BavariaDrtUtilityEstimator(BavariaModeParameters parameters, DrtPredictor predictor) {
 		super(parameters, predictor);
-		this.parameters = parameters;
 	}
 
 	@Override
