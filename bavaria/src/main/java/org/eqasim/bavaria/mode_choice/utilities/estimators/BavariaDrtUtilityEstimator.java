@@ -31,8 +31,9 @@ public class BavariaDrtUtilityEstimator implements UtilityEstimator {
         u += parameters.drt.alpha_u;
         // in-vehicle travel time (treat like PT)
         u += parameters.drt.betaTravelTime_u_min * vars.travelTime_min;
-        // waiting time
-        u += parameters.drt.betaWaitingTime_u_min * vars.waitingTime_min;
+		// waiting time (subtract fixed pre-booking buffer of 25 min = 1500 s)
+		double waitingMin = Math.max(0.0, vars.waitingTime_min - 25.0);
+		u += parameters.drt.betaWaitingTime_u_min * waitingMin;
         // access/egress time (use Bavaria access parameter)
         u += parameters.betaAccessTime_u_min * vars.accessEgressTime_min;
         // monetary cost with distance interaction
