@@ -296,7 +296,7 @@
 		<param name="insistingOnDeprecatedConfigVersion" value="true" />
 		<!-- "global" number of threads.  This number is used, e.g., for replanning, but NOT in QSim.  This can typically be set to as many cores as you have available, or possibly even slightly more. -->
 		<param name="numberOfThreads" value="8" />
-		<param name="randomSeed" value="1234" />
+		<param name="randomSeed" value="2471" />
 	</module>
 	<module name="hermes" >
 		<!-- Simulation End Time -->
@@ -340,7 +340,7 @@
 			<!-- Mode which will be handled by PassengerEngine and VrpOptimizer (passengers'/customers' perspective) -->
 			<param name="mode" value="drt" />
 			<!-- Number of threads used for parallel evaluation of request insertion into existing schedules. Scales well up to 4, due to path data provision, the most computationally intensive part, using up to 4 threads. Default value is the number of cores available to JVM. -->
-			<param name="numberOfThreads" value="8" />
+			<param name="numberOfThreads" value="22" />
 			<!-- Operational Scheme, either of door2door, stopbased or serviceAreaBased. door2door by default -->
 			<param name="operationalScheme" value="door2door" />
 			<!-- Specifies the time interval (seconds) a vehicle gets evaluated to be send back to depot. -->
@@ -989,7 +989,7 @@
 		<!-- Comma-separated list of transportation modes that are handled as transit. Defaults to 'pt'. -->
 		<param name="transitModes" value="pt" />
 		<!-- Input file containing the transit schedule to be simulated. -->
-		<param name="transitScheduleFile" value="bavaria_transit_schedule.xml.gz" />
+		<param name="transitScheduleFile" value="bavaria_transit_schedulewofreising.xml" />
 		<!-- Optional input file containing additional attributes for transit stop facilities, stored as ObjectAttributes. -->
 		<param name="transitStopsAttributesFile" value="null" />
 		<!-- Set this parameter to true if transit should be simulated, false if not. -->
